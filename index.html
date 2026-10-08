@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Estela — Logística de Precisión & Cadena de Tránsito B2B</title>
+  
+  <!-- Tailwind CSS CDN para estilos utilitarios (Sin empaquetador) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Hoja de estilos personalizada: Glassmorphism, animaciones y blueprint grid -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-gradient-to-br from-slate-100 via-indigo-50/40 to-slate-200/60 text-slate-800 antialiased min-h-screen flex flex-col selection:bg-amber-400 selection:text-slate-950 relative overflow-x-hidden">
+
+  <!-- ========================================================================= -->
+  <!-- ELEMENTOS DE LUZ AMBIENTAL DIFUSA (ORBES PARA REFRACCIÓN DEL GLASSMORPHISM)-->
+  <!-- ========================================================================= -->
+  <div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
+    <div class="absolute -top-24 left-1/4 w-[28rem] h-[28rem] bg-indigo-300/20 rounded-full blur-3xl"></div>
+    <div class="absolute top-1/3 -right-20 w-[30rem] h-[30rem] bg-amber-200/20 rounded-full blur-3xl"></div>
+    <div class="absolute -bottom-20 left-10 w-[32rem] h-[32rem] bg-sky-200/20 rounded-full blur-3xl"></div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- ENCABEZADO SUPERIOR: AZUL MARINO ÍNDIGO PROFUNDO                          -->
+  <!-- ========================================================================= -->
+  <header class="h-20 bg-indigo-950 border-b border-indigo-900/80 sticky top-0 z-30 px-4 sm:px-8 flex items-center justify-between shadow-lg text-white">
+    <div class="flex items-center gap-6">
+      
+      <!-- Marca: ESTELA -->
+      <a href="javascript:void(0)" id="brand-link" class="flex items-center gap-3.5 group">
+        <div class="relative flex items-center justify-center">
+          <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-500 flex items-center justify-center text-indigo-950 font-bold shadow-md shadow-amber-500/20 group-hover:scale-105 transition-transform duration-200">
+            <svg class="w-5 h-5 text-indigo-950" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <circle cx="12" cy="12" r="9" stroke-width="2" />
+              <polygon points="12,6 15,12 12,18 9,12" fill="currentColor" opacity="0.3" stroke-width="1.5" />
+              <polygon points="12,6 15,12 12,12" fill="#1e1b4b" stroke="none" />
+            </svg>
+          </div>
+        </div>
+
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="font-extrabold text-base tracking-widest text-white font-mono-custom">ESTELA</span>
+            <span class="text-xs bg-amber-400/20 border border-amber-400/40 text-amber-300 px-2 py-0.5 rounded-full font-bold uppercase font-mono-custom">Logistics B2B</span>
+          </div>
+          <span class="text-xs text-indigo-200 font-medium">Operaciones de Transporte & Distribución Nacional</span>
+        </div>
+      </a>
+
+      <!-- Separador visual -->
+      <div class="h-8 w-px bg-indigo-800/60 hidden md:block"></div>
+
+      <!-- Selector de Vistas -->
+      <nav class="hidden sm:flex items-center gap-1.5 bg-indigo-900/60 p-1.5 rounded-2xl border border-indigo-800/80">
+        <button id="tab-nav-shipments" class="text-xs font-bold px-4 py-2 rounded-xl transition-all bg-white text-indigo-950 shadow-sm">
+          Torre de Control
+        </button>
+        <button id="tab-nav-tracking" class="text-xs font-medium px-4 py-2 rounded-xl transition-all text-indigo-200 hover:text-white hover:bg-indigo-800/50">
+          Rastreo de Guía
+        </button>
+      </nav>
+    </div>
+
+    <!-- Indicador de Red Logística y Hora Operativa -->
+    <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2.5 bg-indigo-900/70 border border-indigo-800 px-3.5 py-1.5 rounded-xl text-xs font-mono-custom shadow-xs">
+        <span class="relative flex h-2 w-2">
+          <span class="radar-pulse absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
+        </span>
+        <span class="text-indigo-200">Hub Callao</span>
+        <span class="text-indigo-400">•</span>
+        <span class="text-amber-300 font-bold">Flota Activa</span>
+      </div>
+
+      <div class="hidden sm:flex items-center gap-2 bg-indigo-900/50 border border-indigo-800/80 px-3.5 py-1.5 rounded-xl text-xs font-mono-custom text-indigo-200 shadow-xs">
+        <svg class="w-3.5 h-3.5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span id="header-live-clock">--:--:-- PET</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================================================= -->
+  <!-- CUERPO PRINCIPAL: FONDO CLARO CON MALLA BLUEPRINT & GLASSMORPHISM         -->
+  <!-- ========================================================================= -->
+  <div class="flex-1 bg-grid-pattern relative z-10">
+    
+    <!-- VISTA 1: TORRE DE CONTROL / TABLA DE ALTA DENSIDAD -->
+    <main id="view-shipments" class="p-4 sm:p-8 max-w-7xl w-full mx-auto space-y-6">
+      
+      <!-- KPIs con Glassmorphism -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="glass-card rounded-2xl p-5">
+          <div class="flex items-center justify-between text-slate-500 mb-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Total Envíos</span>
+            <span class="text-xs font-mono-custom font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">+6.4%</span>
+          </div>
+          <div class="text-3xl font-extrabold text-slate-900 font-mono-custom" id="kpi-total-shipments">12</div>
+          <p class="text-xs text-slate-500 mt-1.5 flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+            Guías activas del ciclo
+          </p>
+        </div>
+
+        <div class="glass-card rounded-2xl p-5">
+          <div class="flex items-center justify-between text-slate-500 mb-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-500">En Ruta Activa</span>
+            <span class="text-xs font-mono-custom font-semibold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">Tránsito</span>
+          </div>
+          <div class="text-3xl font-extrabold text-amber-600 font-mono-custom" id="kpi-in-transit">5</div>
+          <p class="text-xs text-slate-500 mt-1.5 flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+            Unidades con GPS activo
+          </p>
+        </div>
+
+        <div class="glass-card rounded-2xl p-5">
+          <div class="flex items-center justify-between text-slate-500 mb-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Entregados Hoy</span>
+            <span class="text-xs font-mono-custom font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">94.8%</span>
+          </div>
+          <div class="text-3xl font-extrabold text-emerald-600 font-mono-custom" id="kpi-delivered">5</div>
+          <p class="text-xs text-slate-500 mt-1.5 flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+            Conformidad firmada
+          </p>
+        </div>
+
+        <div class="glass-card rounded-2xl p-5">
+          <div class="flex items-center justify-between text-slate-500 mb-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Incidencias</span>
+            <span class="text-xs font-mono-custom font-semibold text-rose-700 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded-full">Atención</span>
+          </div>
+          <div class="text-3xl font-extrabold text-rose-600 font-mono-custom" id="kpi-incidents">2</div>
+          <p class="text-xs text-slate-500 mt-1.5 flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+            Desvíos y reprogramación
+          </p>
+        </div>
+      </div>
+
+      <!-- Filtros y Búsqueda con Glassmorphism -->
+      <div class="glass-panel rounded-2xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="flex flex-wrap items-center gap-2" id="filter-tabs-container">
+          <button id="filter-btn-ALL" data-filter="ALL" class="filter-tab text-xs font-bold px-3.5 py-2 rounded-xl transition-all bg-indigo-950 text-white shadow-xs">
+            Todos <span class="ml-1 text-indigo-300 font-mono-custom" id="badge-count-all">(12)</span>
+          </button>
+          <button id="filter-btn-EN_RUTA" data-filter="EN_RUTA" class="filter-tab text-xs font-semibold px-3.5 py-2 rounded-xl transition-all text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+            En Ruta <span class="ml-1 font-mono-custom text-amber-600 font-bold" id="badge-count-in-transit">(5)</span>
+          </button>
+          <button id="filter-btn-ENTREGADO" data-filter="ENTREGADO" class="filter-tab text-xs font-semibold px-3.5 py-2 rounded-xl transition-all text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+            Entregados <span class="ml-1 font-mono-custom text-emerald-600 font-bold" id="badge-count-delivered">(5)</span>
+          </button>
+          <button id="filter-btn-INCIDENCIA" data-filter="INCIDENCIA" class="filter-tab text-xs font-semibold px-3.5 py-2 rounded-xl transition-all text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+            Incidencias <span class="ml-1 font-mono-custom text-rose-600 font-bold" id="badge-count-incidents">(2)</span>
+          </button>
+        </div>
+
+        <div class="relative w-full md:w-88">
+          <input type="text" id="table-search-input" placeholder="Buscar por código de guía, cliente o ciudad..." 
+                 class="w-full bg-white/70 border border-slate-200/80 rounded-xl px-3.5 py-2 pl-10 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-indigo-600 focus:bg-white transition-all shadow-inner backdrop-blur-xs">
+          <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </div>
+      </div>
+
+      <!-- Tabla de Datos con Glassmorphism de Alta Densidad (Sin Checkboxes) -->
+      <div class="glass-table-container rounded-2xl overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="bg-slate-100/60 backdrop-blur-xs border-b border-slate-200/80 text-slate-600 font-bold font-mono-custom uppercase tracking-wider">
+                <th class="py-3.5 px-4 cursor-pointer hover:text-slate-900 transition-colors" data-sort="id">
+                  <div class="flex items-center gap-1.5">
+                    <span>Guía</span>
+                    <span id="sort-icon-id" class="text-slate-400">↕</span>
+                  </div>
+                </th>
+                <th class="py-3.5 px-4 cursor-pointer hover:text-slate-900 transition-colors" data-sort="recipient">
+                  <div class="flex items-center gap-1.5">
+                    <span>Destinatario Corporativo</span>
+                    <span id="sort-icon-recipient" class="text-slate-400">↕</span>
+                  </div>
+                </th>
+                <th class="py-3.5 px-4 cursor-pointer hover:text-slate-900 transition-colors" data-sort="city">
+                  <div class="flex items-center gap-1.5">
+                    <span>Ciudad Destino</span>
+                    <span id="sort-icon-city" class="text-slate-400">↕</span>
+                  </div>
+                </th>
+                <th class="py-3.5 px-4 cursor-pointer hover:text-slate-900 transition-colors" data-sort="status">
+                  <div class="flex items-center gap-1.5">
+                    <span>Estado Operativo</span>
+                    <span id="sort-icon-status" class="text-slate-400">↕</span>
+                  </div>
+                </th>
+                <th class="py-3.5 px-4 cursor-pointer hover:text-slate-900 transition-colors" data-sort="carrier">
+                  <div class="flex items-center gap-1.5">
+                    <span>Transportista</span>
+                    <span id="sort-icon-carrier" class="text-slate-400">↕</span>
+                  </div>
+                </th>
+                <th class="py-3.5 px-4 cursor-pointer hover:text-slate-900 transition-colors" data-sort="eta">
+                  <div class="flex items-center gap-1.5">
+                    <span>Estimado (ETA)</span>
+                    <span id="sort-icon-eta" class="text-slate-400">↕</span>
+                  </div>
+                </th>
+                <th class="py-3.5 px-4 text-right">Seguimiento</th>
+              </tr>
+            </thead>
+            <tbody id="table-body" class="divide-y divide-slate-100 text-xs">
+            </tbody>
+          </table>
+        </div>
+
+        <div class="p-4 bg-slate-50/60 backdrop-blur-xs border-t border-slate-200/80 flex items-center justify-between text-xs text-slate-500 font-mono-custom">
+          <div>
+            Mostrando <span id="displayed-count" class="text-slate-900 font-bold">12</span> de <span id="total-count" class="text-slate-900 font-bold">12</span> registros de carga
+          </div>
+          <div class="flex items-center gap-2 text-indigo-950 font-semibold">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>Telemetría en tiempo real</span>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- VISTA 2: AUDITORÍA DE GUÍA CON GLASSMORPHISM -->
+    <main id="view-tracking" class="p-4 sm:p-8 max-w-4xl w-full mx-auto space-y-6 hidden">
+      <div class="glass-modal rounded-3xl p-6 sm:p-10 space-y-8">
+        <div class="text-center max-w-lg mx-auto space-y-3">
+          <div class="w-12 h-12 bg-indigo-50 border border-indigo-200 text-indigo-700 rounded-2xl flex items-center justify-center mx-auto shadow-xs">
+            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+            </svg>
+          </div>
+          <h2 class="text-2xl font-bold text-slate-900 tracking-tight">Rastreador de Guía Logística</h2>
+          <p class="text-xs text-slate-500 leading-relaxed">Audita los hitos de entrega en tiempo real con confirmación de firma y custodia.</p>
+          
+          <div class="flex items-center gap-2 pt-2">
+            <input type="text" id="tracking-search-code" placeholder="Código de guía (ej. EST-8942)" value="EST-8942" 
+                   class="flex-1 bg-white/70 border border-slate-200/80 rounded-xl px-4 py-3 text-xs sm:text-sm text-slate-900 font-mono-custom tracking-wider focus:outline-none focus:border-indigo-600 focus:bg-white uppercase shadow-inner backdrop-blur-xs">
+            <button id="btn-lookup-tracking" class="px-6 py-3 bg-indigo-950 hover:bg-indigo-900 text-white font-bold text-xs sm:text-sm rounded-xl transition-all shadow-md active:scale-95">
+              Rastrear
+            </button>
+          </div>
+        </div>
+
+        <div id="tracking-result-container" class="pt-6 border-t border-slate-200 space-y-6">
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- PIE DE PÁGINA CORPORATIVO B2B (GOOGLE MAPS, SEDES & CANALES DE CONTACTO)  -->
+  <!-- ========================================================================= -->
+  <footer class="bg-slate-950 text-slate-300 border-t border-slate-800 shrink-0">
+    <div class="max-w-7xl mx-auto px-4 sm:px-8 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 text-xs">
+        
+        <!-- Columna 1: Marca Corporativa & Redes Sociales -->
+        <div class="space-y-4">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-xl bg-amber-400 flex items-center justify-center text-slate-950 font-bold shadow-sm">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <circle cx="12" cy="12" r="9" stroke-width="2" />
+                <polygon points="12,6 15,12 12,18 9,12" fill="currentColor" opacity="0.3" stroke-width="1.5" />
+                <polygon points="12,6 15,12 12,12" fill="#020617" stroke="none" />
+              </svg>
+            </div>
+            <span class="font-extrabold text-base tracking-widest text-white font-mono-custom">ESTELA LOGISTICS</span>
+          </div>
+          <p class="text-slate-400 leading-relaxed">
+            Operador logístico líder en transporte pesado, distribución interprovincial y cadena de custodia certificada para empresas de todo el país.
+          </p>
+          
+          <!-- Enlaces a Redes Sociales Corporativas -->
+          <div class="pt-1">
+            <span class="text-slate-400 block mb-2 font-medium">Conecta con nosotros:</span>
+            <div class="flex items-center gap-3">
+              <!-- LinkedIn -->
+              <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn Corporativo" class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 hover:border-amber-400 text-slate-400 hover:text-white flex items-center justify-center transition-colors">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                </svg>
+              </a>
+              <!-- X (Twitter) -->
+              <a href="https://x.com" target="_blank" rel="noopener noreferrer" aria-label="Cuenta oficial en X" class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 hover:border-amber-400 text-slate-400 hover:text-white flex items-center justify-center transition-colors">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                </svg>
+              </a>
+              <!-- WhatsApp Corporativo -->
+              <a href="https://whatsapp.com" target="_blank" rel="noopener noreferrer" aria-label="Canal oficial WhatsApp" class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 hover:border-emerald-400 text-slate-400 hover:text-emerald-400 flex items-center justify-center transition-colors">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/>
+                </svg>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Columna 2: Servicios Corporativos & Enlaces -->
+        <div class="space-y-3">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-100 flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+            Servicios Logísticos
+          </h4>
+          <ul class="space-y-2 text-slate-400">
+            <li><a href="javascript:void(0)" class="hover:text-amber-400 transition-colors">Transporte de Carga Pesada & Granel</a></li>
+            <li><a href="javascript:void(0)" class="hover:text-amber-400 transition-colors">Distribución & Última Milla B2B</a></li>
+            <li><a href="javascript:void(0)" class="hover:text-amber-400 transition-colors">Cadena de Frío & Carga Farmacéutica</a></li>
+            <li><a href="javascript:void(0)" class="hover:text-amber-400 transition-colors">Almacenamiento & Cross-Docking</a></li>
+            <li><a href="javascript:void(0)" class="hover:text-amber-400 transition-colors">Custodia Satelital de Mercadería</a></li>
+          </ul>
+        </div>
+
+        <!-- Columna 3: Sedes & Ubicación Google Maps -->
+        <div class="space-y-3">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-100 flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-indigo-400"></span>
+            Sedes & Ubicación GPS
+          </h4>
+          <div class="space-y-1.5 text-slate-400">
+            <div>
+              <span class="text-slate-200 font-semibold block">Sede Central Callao:</span>
+              <span>Av. Elmer Faucett 2820, Callao, Lima</span>
+            </div>
+            <div class="text-[11px] text-slate-500">
+              <span>Terminal Sur: Arequipa • Terminal Norte: Trujillo</span>
+            </div>
+          </div>
+
+          <!-- Ubicación Interactiva Google Maps -->
+          <div class="mt-2 overflow-hidden rounded-xl border border-slate-800 shadow-inner group">
+            <iframe 
+              src="https://maps.google.com/maps?q=Av.+Elmer+Faucett+2820,+Callao,+Peru&t=&z=14&ie=UTF8&iwloc=&output=embed" 
+              class="w-full h-28 border-0 grayscale hover:grayscale-0 transition-all duration-300 opacity-80 hover:opacity-100" 
+              loading="lazy" 
+              allowfullscreen="" 
+              referrerpolicy="no-referrer-when-downgrade" 
+              title="Ubicación Google Maps Sede Central Callao">
+            </iframe>
+            <div class="bg-slate-900/95 px-2.5 py-1.5 flex items-center justify-between text-[11px] text-slate-400 border-t border-slate-800">
+              <span class="flex items-center gap-1 text-slate-300">
+                <svg class="w-3.5 h-3.5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                Hub Callao (GPS)
+              </span>
+              <a href="https://maps.google.com/?q=Av.+Elmer+Faucett+2820,+Callao" target="_blank" rel="noopener noreferrer" class="text-amber-400 hover:text-amber-300 font-semibold transition-colors flex items-center gap-0.5">
+                Abrir Maps ↗
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Columna 4: Atención & Contacto Comercial -->
+        <div class="space-y-3">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-100 flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+            Contacto Directo
+          </h4>
+          <div class="space-y-2 text-slate-400">
+            <div>
+              <span class="text-slate-400 block">Central de Atención:</span>
+              <a href="tel:+5116189400" class="text-white font-bold hover:text-amber-400 transition-colors font-mono-custom">+51 (01) 618-9400</a>
+            </div>
+            <div>
+              <span class="text-slate-400 block">Mesa de Operaciones (24/7):</span>
+              <a href="mailto:operaciones@estela-logistics.pe" class="text-slate-200 hover:text-amber-400 transition-colors">operaciones@estela-logistics.pe</a>
+            </div>
+            <div>
+              <span class="text-slate-400 block">Cotizaciones Corporativas:</span>
+              <a href="mailto:comercial@estela-logistics.pe" class="text-slate-200 hover:text-amber-400 transition-colors">comercial@estela-logistics.pe</a>
+            </div>
+          </div>
+
+          <!-- Acceso a Libro de Reclamaciones -->
+          <div class="pt-2">
+            <a href="javascript:void(0)" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-300 hover:text-white transition-all">
+              <svg class="w-4 h-4 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+              </svg>
+              <span>Libro de Reclamaciones</span>
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Barra Inferior de Derechos & Enlaces Legales -->
+    <div class="bg-black/95 border-t border-slate-900 px-4 sm:px-8 py-4">
+      <div class="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-slate-500">
+        <div>
+          <span>© 2026 Estela Freight Logistics S.A.C. Todos los derechos reservados. RUC: 20608942101</span>
+        </div>
+        <div class="flex flex-wrap items-center gap-4 text-slate-400">
+          <a href="javascript:void(0)" class="hover:text-white transition-colors">Términos del Servicio</a>
+          <span>•</span>
+          <a href="javascript:void(0)" class="hover:text-white transition-colors">Política de Privacidad</a>
+          <span>•</span>
+          <a href="javascript:void(0)" class="hover:text-white transition-colors">Seguridad de Carga</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ========================================================================= -->
+  <!-- PANEL LATERAL DESPLEGABLE (SLIDE-OVER STEPPER CON MAPA SVG & TELEMETRÍA)   -->
+  <!-- ========================================================================= -->
+  <div id="slide-over-backdrop" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-40 hidden slide-panel-backdrop"></div>
+
+  <aside id="slide-over" class="fixed inset-y-0 right-0 z-50 w-full max-w-lg glass-modal border-l border-white/60 shadow-2xl flex flex-col transform translate-x-full slide-panel-drawer">
+    <div class="p-6 border-b border-slate-200/80 flex items-center justify-between bg-white/70 sticky top-0 z-10 backdrop-blur-md">
+      <div>
+        <div class="flex items-center gap-2.5">
+          <span class="text-xs font-mono-custom font-extrabold text-indigo-950 bg-indigo-50 border border-indigo-200 px-2.5 py-0.5 rounded-full" id="so-tracking-id">EST-8942</span>
+          <div id="so-status-badge"></div>
+        </div>
+        <h3 class="text-base font-bold text-slate-900 mt-1.5" id="so-recipient">Aceros Arequipa S.A.</h3>
+      </div>
+      <button data-action="close-slideover" class="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition-colors">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="flex-1 overflow-y-auto p-6 space-y-6 text-xs">
+      
+      <!-- Mapa esquemático animado con SVG reactivo -->
+      <div id="so-map-container" class="bg-slate-900 rounded-2xl p-4 text-white relative overflow-hidden shadow-inner">
+        <div class="flex items-center justify-between mb-3 text-xs font-mono-custom text-slate-300">
+          <span class="flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            Telemetría de Trayecto
+          </span>
+          <span id="so-map-distance" class="text-amber-400 font-bold">980 km • 84% completado</span>
+        </div>
+
+        <div class="h-28 w-full relative">
+          <svg class="w-full h-full" viewBox="0 0 400 100" preserveAspectRatio="none">
+            <path d="M 30,50 Q 150,15 250,75 T 370,40" fill="none" stroke="#334155" stroke-width="3" stroke-linecap="round" />
+            <path d="M 30,50 Q 150,15 250,75 T 320,50" fill="none" stroke="#6366f1" stroke-width="3" stroke-linecap="round" class="route-animated-line" />
+            
+            <circle cx="30" cy="50" r="5" fill="#10b981" />
+            <text x="30" y="70" fill="#94a3b8" font-size="9" font-family="monospace" text-anchor="middle">CALLAO</text>
+
+            <circle cx="180" cy="40" r="4" fill="#6366f1" />
+            <text x="180" y="25" fill="#94a3b8" font-size="9" font-family="monospace" text-anchor="middle">ICA</text>
+
+            <circle cx="320" cy="50" r="8" fill="#f59e0b" opacity="0.3" class="radar-pulse" />
+            <circle cx="320" cy="50" r="5" fill="#f59e0b" />
+            <text x="320" y="75" fill="#f59e0b" font-size="9" font-weight="bold" font-family="monospace" text-anchor="middle">UNIDAD</text>
+
+            <circle cx="370" cy="40" r="4" fill="#64748b" />
+            <text x="370" y="25" fill="#94a3b8" font-size="9" font-family="monospace" text-anchor="middle">DESTINO</text>
+          </svg>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 bg-slate-50 border border-slate-200 rounded-2xl p-4 font-mono-custom text-xs">
+        <div>
+          <span class="text-slate-400 block text-xs">Centro de Origen</span>
+          <span class="text-slate-800 font-bold" id="so-origin">Hub Central Callao</span>
+        </div>
+        <div>
+          <span class="text-slate-400 block text-xs">Destino Final</span>
+          <span class="text-slate-800 font-bold" id="so-destination">Arequipa</span>
+        </div>
+        <div>
+          <span class="text-slate-400 block text-xs">Transportista & Placa</span>
+          <span class="text-slate-800 font-semibold" id="so-carrier">Ransa • B7X-912</span>
+        </div>
+        <div>
+          <span class="text-slate-400 block text-xs">Carga / Peso</span>
+          <span class="text-indigo-950 font-bold" id="so-weight">14,200 kg</span>
+        </div>
+      </div>
+
+      <div>
+        <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 font-mono-custom">Historial de Custodia (Timeline)</h4>
+        <div class="space-y-6 relative pl-6 before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-200" id="so-stepper-steps">
+        </div>
+      </div>
+
+      <div class="pt-4 border-t border-slate-200 space-y-2.5">
+        <button id="btn-so-deliver" class="w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold transition-all flex items-center justify-center gap-2 shadow-sm shadow-emerald-600/20 active:scale-98">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+          </svg>
+          Confirmar Entrega y Recepción
+        </button>
+        <button data-action="close-slideover" class="w-full py-2.5 px-4 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-700 font-semibold transition-all">
+          Cerrar Detalle
+        </button>
+      </div>
+
+    </div>
+  </aside>
+
+  <!-- Scripts modulares en Vanilla JavaScript nativo (Sin empaquetador) -->
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
